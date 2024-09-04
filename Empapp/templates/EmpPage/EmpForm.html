@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Form{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="card m-5" style="width: 50rem;">
+        <div class="card-body">
+            <h5 class="card-title">Employee Data Form</h5>
+            <form method="POST" action="{% url 'create_emp' %}" class="row g-3" id="editModal">
+                {% csrf_token %}
+                {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <ul>
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <li>{{ field.label }}: {{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}                
+                <!-- Step 1 -->
+                <div class="form-step active">
+                    <div class="row row-me10">
+                        <div class="col-6">
+                            <label for="empname_eng" class="form-label">Name :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-person" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.empname_eng }}
+                                {% if form.empname_eng.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.empname_eng.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="empidn" class="form-label">National ID :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-person-vcard" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.empidn }}
+                                {% if form.empidn.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.empidn.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row row-me10">
+                        <div class="col-6">
+                            <label for="{{ form.birth_date.id_for_label }}" class="form-label">Birth Date :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-sort-numeric-up-alt" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.birth_date }}
+                                {% if form.birth_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.birth_date.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="empnumber" class="form-label">Phone Number :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-phone" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.empnumber }}
+                                {% if form.empnumber.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.empnumber.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <label for="empemail" class="form-label">Email :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-envelope" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.empemail }}
+                                {% if form.empemail.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.empemail.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="othernumber" class="form-label">Emergency Number :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-phone" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.othernumber }}
+                                {% if form.othernumber.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.othernumber.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-md-4">
+                            <label for="marital_status" class="form-label">Marital Status:</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-people" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.marital_status }}
+                                {% if form.marital_status.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.marital_status.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">City :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="ri-map-pin-user-fill" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.city.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="gender" class="form-label">Gender :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="ri-user-line" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.gender }}
+                                {% if form.gender.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.gender.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step 2 -->
+                <div class="form-step">
+                    <div class="row row-me10">
+                        <div class="col-6">
+                            <label for="joindate" class="form-label">Join Date :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="ri-run-fill" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.joindate }}
+                                {% if form.joindate.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.joindate.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="statsid" class="form-label">Employee Status :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-clipboard2-data" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.statsid }}
+                                {% if form.statsid.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.statsid.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <label for="jopt" class="form-label">Job Title :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="bi bi-briefcase" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.jopt }}
+                                {% if form.jopt.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.jopt.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label for="deptid" class="form-label">Department :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="ri-hotel-line" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.deptid }}
+                                {% if form.deptid.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.deptid.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <label for="suprid" class="form-label">Supervisor :</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary border-primary-subtle text-white">
+                                    <i class="ri-user-line" style="font-size: 20px;"></i>
+                                </span>
+                                {{ form.suprid }}
+                                {% if form.suprid.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.suprid.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <!-- This column is empty -->
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-m2">
+                            <label for="form_sent">Form Sent:</label>
+                        </div>
+                        <div class="input-group">
+                            <div class="col-m2">
+                                {{ form.form_sent }}
+                                {% if form.form_sent.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.form_sent.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Navigation Buttons -->
+                <div class="row mt-4">
+                    <div class="col text-center">
+                        <button type="button" class="btn btn-primary" id="prevBtn">Previous</button>
+                        <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+                        <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">Submit</button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+</div>
+<div id="success_tic" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="page-body">
+          <div class="head">  
+            <h3>Done!</h3>
+          </div>
+          <div style="text-align:center;">
+            <div class="checkmark-circle">
+              <div class="background"></div>
+              <div class="checkmark draw"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+{% endblock %}

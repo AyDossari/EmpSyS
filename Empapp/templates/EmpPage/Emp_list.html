@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee List{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container">
+        <div class="card-body">
+            <h5 class="card-title">List of employees <span>| All</span></h5>
+            <div class="row">
+               
+                <div class="col-10">
+                    <div class="datatable-wrapper datatable-loading no-footer sortable searchable fixed-columns ">
+                        <div class="datatable-top">
+                            <div class="datatable-search">
+                                <form method="GET" action="{% url 'employee_list' %}">
+                                    <div class="input-group">
+                                        <button class="input-group-text bg-primary text-white" type="submit">
+                                            <i class="bi bi-search" style="font-size: 20px;"></i>
+                                        </button>
+                                        <input class="datatable-input bg-light" 
+                                               placeholder="Employee name" 
+                                               type="search" 
+                                               name="q" 
+                                               title="Search">
+                                    </div>
+                                </form>
+                            </div>                            
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="col-2 text-end">
+                    <button type="button" class="btn btn-outline-primary" onclick="location.href='{% url 'EmpForm' %}'">
+                        <i class="bi bi-person-plus-fill" style="font-size: 20px;"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-2">    
+           
+                <div class="datatable-container">
+                    <table class="table table-bordered datatable datatable-table">
+                        <thead>
+                            <th class="bg-primary text-white" scope="col" data-sortable="true" style="width: 10.72%;">
+                                ID
+                            </th>
+                            <th class="bg-primary text-white" scope="col" data-sortable="true" style="width: 23.45%;">
+                                Name
+                            </th>
+                            <th class="bg-primary text-white" scope="col" data-sortable="true" style="width: 20.36%;">
+                               Join Date
+                            </th>
+                            <th class="bg-primary text-white " scope="col" data-sortable="true"
+                                style="width: 14.73%;">
+                                Department
+        
+                            </th>
+                            <th class="bg-primary text-white" scope="col" data-sortable="true" class="red"
+                                style="width: 10.74%;">
+                                Status
+                            </th>
+                            <th class="bg-primary text-white text-center" scope="col" data-sortable="true" class="red"
+                                style="width: 39.74%;">
+                                Action
+                            </th>
+                            </tr>
+                        </thead>                        
+                        <tbody class="table-bordered">
+                            {% for employee in employees %}                         
+                            <tr scope="row" >
+                                <td >{{ employee.empidn }}</td>
+                                <td class="table-light">{{ employee.empname_eng }}</td>
+                                <td>{{ employee.joindate }}</td>
+                                <td class="table-light" id="deptid-{{ employee.empid }}">{{ employee.deptid }}</td>
+                                <td>
+                                {% if employee.statsid|lower == 'active' %}
+                                    <span class="badge bg-success">{{ employee.statsid }}</span>
+                                {% elif employee.statsid|lower == 'inactive' %}
+                                <span class="badge bg-danger">{{ employee.statsid }}</span>                                   
+                                {% elif employee.statsid|lower == 'pending' %}
+                                <span class="badge bg-warning text-dark">{{ employee.statsid }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger"><i class="bi bi-exclamation-octagon me-1"></i> Error</span>
+                                {% endif %}
+                                <td>
+                                    <div class="btn-groupdei text-center">                                                                               
+                                        <button type="button" class="btn btn-secondary btn-sm rounded-pill text-white btn-more" id="moreBtn">
+                                            <i class="bi bi-three-dots"></i> More
+                                        </button>                                        
+                                        <div id="extraButtons" style="display: none;">
+                                            <button type="button" class="btn btn-info btn-sm rounded-pill text-white btn-danger" data-id="{{ employee.empid }}" data-name="{{ employee.empname_eng }}" onclick="openDeleteEmpModal({{ employee.empid }})">
+                                                <i class="ri-delete-bin-6-line"></i> Del
+                                            </button>
+                                            <button type="button" class="btn btn-info btn-sm rounded-pill text-white btn-info-custom" data-id="{{ employee.empid }}" data-name="{{ employee.empname_eng }}" onclick="openInfoEmpModal({{ employee.empid }})">
+                                                <i class="bi bi-info-circle"></i> Info
+                                            </button>
+                                            <button type="button" class="btn btn-info btn-sm rounded-pill text-white btn-warning" data-id="{{ employee.empid }}" data-name="{{ employee.empname_eng }}" onclick="openEditEmpModal({{ employee.empid }})">
+                                                <i class="ri-edit-2-line"></i> Edit
+                                            </button>
+                                        </div>
+                                    </div>                                                                                                        
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center">No employees found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    
+    </div>
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered  modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteForm" method="post" action="">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="deleteEmpName">Employee Name</label>
+                                <input type="text" class="form-control" id="deleteEmpName" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="deleteEmpIdn">Employee ID Number</label>
+                                <input type="text" class="form-control" id="deleteEmpIdn" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="deleteEmpNumber">Employee Number</label>
+                                <input type="text" class="form-control" id="deleteEmpNumber" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="deleteOtherNumber">Other Number</label>
+                                <input type="text" class="form-control" id="deleteOtherNumber" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="deleteEmpEmail">Email</label>
+                                <input type="text" class="form-control" id="deleteEmpEmail" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="deleteBirthDate">Birth Date</label>
+                                <input type="text" class="form-control" id="deleteBirthDate" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="deleteCity">City</label>
+                                <input type="text" class="form-control" id="deleteCity" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="deleteGender">Gender</label>
+                                <input type="text" class="form-control" id="deleteGender" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="deleteMaritalStatus">Marital Status</label>
+                                <input type="text" class="form-control" id="deleteMaritalStatus" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="deleteJopt">Job Option</label>
+                                <input type="text" class="form-control" id="deleteJopt" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="deleteSuprid">Supervisor</label>
+                                <input type="text" class="form-control" id="deleteSuprid" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="deleteStatsid">Status</label>
+                                <input type="text" class="form-control" id="deleteStatsid" readonly style="background-color: #e9ecef;">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="deleteDeptid">Department</label>
+                                <input type="text" class="form-control" id="deleteDeptid" readonly style="background-color: #e9ecef;">
+                            </div>
+                        </div>
+                        <input type="hidden" id="deleteEmpId" name="emp_id">
+                    </form>
+                    
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="$('#deleteModal').modal('hide');">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-white">
+                    <h5 class="modal-title" id="editModalLabel"></h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Employee Data Form</h5>
+                                <form id="editForm" method="post" action="" class="row g-3">
+                                    {% csrf_token %}
+                                    <!-- Step 1 -->
+                                    <div class="form-step active">
+                                        <div class="row row-me10">
+                                            <div class="col-md-6">
+                                                <label for="editEmpName">Employee Name</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-person" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="empname_eng" id="editEmpName">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="editEmpIdn">Employee ID Number</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text  bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-person-vcard" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="empidn" id="editEmpIdn">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row row-me10">
+                                            <div class="col-md-6">
+                                                <label for="editBirthDate">Birth Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-sort-numeric-up-alt" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="date" class="form-control" name="birth_date" id="editBirthDate">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="editEmpNumber">Employee Number</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-phone" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="empnumber" id="editEmpNumber">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="editEmpEmail">Email</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-envelope" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="empemail" id="editEmpEmail">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="editOtherNumber">Other Number</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-phone" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="othernumber" id="editOtherNumber">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-4">
+                                                <label for="editMaritalStatus">Marital Status</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-people" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editMaritalStatus" name="marital_status">
+                                                        <!-- Options will be dynamically loaded -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="editCity">City</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="ri-map-pin-user-fill" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editCity" name="city">
+                                                        <!-- Options will be dynamically loaded -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="editGender">Gender</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="ri-user-line" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editGender" name="gender">
+                                                        <!-- Options will be dynamically loaded -->
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Step 2 -->
+                                    <div class="form-step">
+                                        <div class="row row-me10">
+                                            <div class="col-md-6">
+                                                <label for="editJoindate">Join Date</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="ri-run-fill" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="date" class="form-control" name="joindate" id="editJoindate">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="editStatsid">Status</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-clipboard2-data" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editStatsid" name="statsid">
+                                                
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="editJopt">Job Option</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="bi bi-briefcase" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <input type="text" class="form-control" name="jopt" id="editJopt">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="editDeptid">Department</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="ri-hotel-line" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editDeptid" name="deptid">
+                                                        
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="editSuprid">Supervisor</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-warning border-warning-subtle text-white">
+                                                        <i class="ri-user-line" style="font-size: 20px;"></i>
+                                                    </span>
+                                                    <select class="form-control" id="editSuprid" name="suprid">
+                                                        
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                   
+                                            </div>
+                                        </div>
+                                        <div class="row mt-4">
+                                            <div class="col-md-6">
+                                                <label for="editFormSent">Form Sent</label>
+                                                <input type="checkbox" name="form_sent" id="editFormSent">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Navigation Buttons -->
+                                    <div class="row mt-4">
+                                        <div class="col text-center">
+                                            <button type="button" class="btn btn-warning" id="prevBtn">Previous</button>
+                                            <button type="button" class="btn btn-warning" id="nextBtn">Next</button>
+                                            <button type="reset" class="btn btn-secondary">Reset</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Oncancel()">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="submitBtn" onclick="confirmEdit()">Save Changes</button>
+                </div>                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="infoModalLabel">Employee Info</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Employee Details</h5>
+                                <form id="infoForm" method="post" action="" class="row g-3">
+                                    {% csrf_token %}
+                                    <!-- Step 1 -->
+                                    <div class="form-stepinfo active">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label for="infoEmpName">Employee Name</label>
+                                                <input type="text" class="form-control" name="empname_eng" id="infoEmpName"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoEmpIdn">Employee ID Number</label>
+                                                <input type="text" class="form-control" name="empidn" id="infoEmpIdn"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="infoBirthDate">Birth Date</label>
+                                                <input type="text" class="form-control" name="birth_date" id="infoBirthDate"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoEmpNumber">Employee Number</label>
+                                                <input type="text" class="form-control" name="empnumber" id="infoEmpNumber"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="infoEmpEmail">Email</label>
+                                                <input type="text" class="form-control" name="empemail" id="infoEmpEmail"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoOtherNumber">Other Number</label>
+                                                <input type="text" class="form-control" name="othernumber" id="infoOtherNumber"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-4">
+                                                <label for="infoMaritalStatus">Marital Status</label>
+                                                <input type="text" class="form-control" id="infoMaritalStatus"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="infoCity">City</label>
+                                                <input type="text" class="form-control" id="infoCity"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label for="infoGender">Gender</label>
+                                                <input type="text" class="form-control" id="infoGender"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Step 2 -->
+                                    <div class="form-stepinfo">
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="infoJoindate">Join Date</label>
+                                                <input type="text" class="form-control" id="infoJoindate"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoStatsid">Status</label>
+                                                <input type="text" class="form-control" id="infoStatsid"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="infoJopt">Job Option</label>
+                                                <input type="text" class="form-control" id="infoJopt"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoDeptid">Department</label>
+                                                <input type="text" class="form-control" id="infoDeptid"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                        </div>
+                                        <div class="row mt-2">
+                                            <div class="col-md-6">
+                                                <label for="infoSuprid">Supervisor</label>
+                                                <input type="text" class="form-control" id="infoSuprid"  readonly style="background-color: #e9ecef;">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label for="infoFormSent">Form Sent</label>
+                                                <input type="checkbox" name="form_sent" id="infoFormSent" disabled>
+                                            </div>
+                                        </div>
+                                    </div>
+    
+                                    <div class="row mt-4">
+                                        <div class="col text-center">
+                                            <button type="button" class="btn btn-info btn-info-custom" id="prevBtn" disabled style="color: #fff;">Previous</button>
+                                            <button type="button" class="btn btn-info btn-info-custom" id="nextBtn"  style="color: #fff;">Next</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="$('#infoModal').modal('hide');">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div id="success_tic" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="page-body">
+            <div class="head">  
+                <h3>Done!</h3>
+            </div>
+            <div style="text-align:center;">
+                <div class="checkmark-circle">
+                <div class="background"></div>
+                <div class="checkmark draw"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div>
+    </div>
+   
+  
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+
+
+
+</body>
+
+{% endblock %}
